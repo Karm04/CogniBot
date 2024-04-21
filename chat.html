@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognibot is here to Help! </title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('D:\\HackNUthon\\.venv\\1.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .chat-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .chat-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chat-log {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f4f4f4;
+            margin-bottom: 20px;
+        }
+
+        .user-message, .bot-message {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            max-width: fit-content;
+        }
+
+        .user-message {
+            background-color: #dcf8c6;
+            color: #333;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background-color: #fff;
+            color: #333;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+
+        .chat-form {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .chat-form input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            margin-right: 10px;
+        }
+
+        .chat-form button {
+            padding: 10px 20px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CogniBot</h1>
+    </header>
+    <div class="container">
+        <div class="chat-container">
+            <h2>Chat Interface</h2>
+            <div class="chat-log" id="chatLog"></div>
+            <form id="chatForm" class="chat-form">
+                <input type="text" id="userInput" placeholder="Type a message...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const chatLog = document.getElementById("chatLog");
+        const chatForm = document.getElementById("chatForm");
+        const userInput = document.getElementById("userInput");
+
+        function scrollToBottom() {
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function addMessage(message, sender) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add(sender === "user" ? "user-message" : "bot-message");
+            messageDiv.innerText = message;
+            chatLog.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        async function sendMessage(message) {
+            addMessage(message, "user");
+            const response = await fetch("/sendMessage", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message }),
+            });
+            const data = await response.json();
+            addMessage(data.message, "bot");
+        }
+
+        chatForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const message = userInput.value.trim();
+            if (message !== "") {
+                await sendMessage(message);
+                userInput.value = "";
+            }
+        });
+
+        // Initial message from the bot
+        addMessage("Hello! How can I assist you?", "bot");
+    </script>
+</body>
+</html>
